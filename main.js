@@ -1,17 +1,17 @@
 const SHA256 = require('crypto-js/sha256');
 
 class Block {
-  constructor(index, timestamp, data, previousHash = '') {
+  constructor(index, timestamp, transaction, previousHash = '') {
     this.index = index;
     this.timestamp = timestamp;
-    this.data = data;
+    this.transaction = transaction;
     this.previousHash = previousHash;
     this.hash = this.computeHash();
   }
 
   computeHash() {
-    const jsondata = JSON.stringify(this.data);
-    const message = `${this.index}${this.previousHash}${this.timestamp}${jsondata}`
+    const jsontransaction = JSON.stringify(this.transaction);
+    const message = `${this.index}${this.previousHash}${this.timestamp}${jsontransaction}`
     return SHA256(message).toString();
   }
 }
@@ -29,13 +29,13 @@ class Blockchain {
     return this.spchain[this.spchain.length - 1];
   }
 
-  addBlock(data) {
+  addBlock(transaction) {
     const latestBlock = this.getLatestBlock();
     const index = latestBlock.index + 1;
     const timestamp = new Date().toLocaleString();
     const previousHash = latestBlock.hash;
 
-    const newBlock = new Block(index, timestamp, data, previousHash);
+    const newBlock = new Block(index, timestamp, transaction, previousHash);
     this.spchain.push(newBlock);
   }
 
@@ -58,21 +58,22 @@ spcoin.addBlock({ sender: 'Eric', receiver: 'Altair', amount: '10' });
 spcoin.addBlock({ sender: 'Altair', receiver: 'Kevin', amount: '5' });
 spcoin.addBlock({ sender: 'Kevin', receiver: 'Eric', amount: '3' });
 
-// console.log(JSON.stringify(spcoin, null, 4));
+console.log(JSON.stringify(spcoin, null, 4));
+console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 // console.log('isChainInvalid? ', spcoin.isChainInvalid());
 // ~~~~~~~~~
-// Tamper Data
+// Tamper transaction
 // const block = spcoin.spchain[2];
-// console.log('orig block ::', block.data);
-// block.data = { sender: 'Altair', receiver: 'Kevin', amount: '500' };
-// console.log('new block ::', block.data);
+// console.log('orig block ::', block.transaction);
+// block.transaction = { sender: 'Altair', receiver: 'Kevin', amount: '500' };
+// console.log('new block ::', block.transaction);
 // console.log('~~~~~~~~');
 // block.computeHash();
 // console.log('isChainInvalid? ', spcoin.isChainInvalid());
 
 // ~~~~~~~~~
 // const block = spcoin.spchain[2];
-// block.data = { sender: 'Kevin', receiver: 'Eric', amount: '300' };
+// block.transaction = { sender: 'Kevin', receiver: 'Eric', amount: '300' };
 // block.computeHash();
 // console.log('isChainInvalid? ', spcoin.isChainInvalid());
 // ~~~~~~~~~
